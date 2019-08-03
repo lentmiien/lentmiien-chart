@@ -14,6 +14,22 @@ let cursor = {
     label: ''
 };
 
+function PlotLine() {
+	const svg = document.getElementById('svg');
+	const line = document.createElement('polyline');
+	let linedata = '0,' + plotData[0];
+	for(let i = 1; i < plotData.length; i++) {
+		linedata += ' ' + (i*100) + ',' + plotData[i];
+	}
+	line.setAttribute('points', linedata);
+	line.setAttribute('stroke', 'rgb(50,255,50)');
+	line.setAttribute('stroke-width', '3');
+	line.setAttribute('fill', 'none');
+	
+	svg.append(line);
+}
+PlotLine();
+
 function Animate(indata) {
     if (indata <= 0) { indata = 800*5-1; }
 
