@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="e_style.css">
+    <title>Document</title>
+</head>
+<body>
+    <svg id="svg" width=850 height=600 onmousemove="MMove(event)">
+        <rect width=800 height=600 fill=black />
+
+        <!-- Main graph (Month) width 800, height 300 -->
+        <g id="month_graph">
+        </g>
+
+        <!-- Weekday graph (1 week) width 200, height 200 -->
+        <g id="weekday_graph">
+        </g>
+
+        <!-- Title (bottom) -->
+        <g id="title">
+        </g>
+
+        <!-- Cursor -->
+        <g id="cross" transform="translate(100,200)">
+            <rect id="val_back" x=10 y=0 width=0 height=20 fill=white />
+            <text id="val_text" x=15 y=15 fill=red></text>
+        </g>
+    </svg>
+    <br>
+    Year:<input id="year" type="text" value="2019">, Month:<input id="month" type="text" value="6"><br>
+    Data to plot:<select id="datatoplot"></select><br>
+    <button onclick="GenerateGraph()">Generate</button>
+
+    <script src="svg_test.js"></script>
+</body>
+</html>
