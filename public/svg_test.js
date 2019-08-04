@@ -7,15 +7,7 @@ let cursor = {
 };
 
 let g_data = [];
-const g_analyze = {
-    "3": {
-        "all": {},
-        "year": {},
-        "month": {},
-        "date": {},
-        "weekday": {}
-    }
-};
+const g_analyze = {};
 GetData();
 async function GetData() {
     // Load data
@@ -246,7 +238,8 @@ async function GetData() {
                     "total": 0,
                     "count": 0
                 }
-            }
+            },
+            "monthlydata": {}
         };
     }
 
@@ -270,6 +263,14 @@ async function GetData() {
                 let d = new Date(parseInt(g_data[i][0]), parseInt(g_data[i][1]) - 1, parseInt(g_data[i][2]));
                 g_analyze[thisId]["weekday"][d.getDay().toString()].total += value;
                 g_analyze[thisId]["weekday"][d.getDay().toString()].count++;
+
+                // Monthly Data
+                const ymstr = g_data[i][0] + g_data[i][1];
+                if (g_analyze[thisId]["monthlydata"].hasOwnProperty(ymstr) == false) {
+                    g_analyze[thisId]["monthlydata"][ymstr] = { "total": 0, "count": 0 };
+                }
+                g_analyze[thisId]["monthlydata"][ymstr].total += value;
+                g_analyze[thisId]["monthlydata"][ymstr].count++;
             }
         }
     }
@@ -300,8 +301,164 @@ async function GetData() {
 }
 
 function GenerateGraph() {
+    PlotTitle();
+    MonthGraph();
+    WeekdayGraph();
+}
+
+const titleText = {
+    "3": "e_support受信",
+    "4": "e_support送信",
+    "5": "楽天受信",
+    "6": "楽天送信",
+    "7": "ebay受信",
+    "8": "ebay送信",
+    "9": "PayPal受信",
+    "10": "PayPal送信",
+    "11": "Amazon受信",
+    "12": "Amazon送信",
+    "13": "キャンセル",
+    "14": "Zendeskチケット",
+    "18": "e_support自動案内",
+    "19": "自動案内その他",
+    "20": "自動案内注文受付",
+    "21": "自動案内キャンセル",
+    "22": "自動案内注文変更",
+    "23": "自動案内決済確認",
+    "24": "自動案内入金リマインダー",
+    "25": "自動案内入金案内",
+    "26": "自動案内発送案内"
+};
+function PlotTitle() {
+    const svg = document.getElementById('title');
+    svg.innerHTML = '';
+    let dtp = parseInt(document.getElementById('datatoplot').value);
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    title.setAttribute('y', 590);
+    title.setAttribute('fill', 'white');
+    title.innerHTML = titleText[dtp];
+    svg.appendChild(title);
+    let svgrect = title.getBBox();
+    title.setAttribute('x', 400 - (svgrect.width / 2));
+}
+
+const wd = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+function WeekdayGraph() {
+    let maxY = 0;
+    let dtp = parseInt(document.getElementById('datatoplot').value);
+    for (let i = 0; i < 7; i++) {
+        if ((g_analyze[dtp].weekday[i.toString()].total / g_analyze[dtp].weekday[i.toString()].count) > maxY) {
+            maxY = (g_analyze[dtp].weekday[i.toString()].total / g_analyze[dtp].weekday[i.toString()].count);
+        }
+    }
+    const svg = document.getElementById('weekday_graph');
+    svg.innerHTML = '';
+    const x_axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    x_axis.setAttribute('x1', 0);
+    x_axis.setAttribute('y1', 550);
+    x_axis.setAttribute('x2', 200);
+    x_axis.setAttribute('y2', 550);
+    x_axis.setAttribute('stroke', 'white');
+    x_axis.setAttribute('stroke-width', 4);
+
+    // y-grid
+    let lines = maxY / 100;// + 1;
+    let mult = 1;
+    if (lines > 10) {
+        lines /= 10;
+        mult *= 10;
+    }
+    if (lines < 2) {
+        lines *= 10;
+        mult /= 10;
+    }
+    for (let y = 1; y < lines; y++) {
+        const offset = mult * 100 * 200 / maxY;
+        const y_grid = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        y_grid.setAttribute('x1', 0);
+        y_grid.setAttribute('y1', 550 - (offset * y));
+        y_grid.setAttribute('x2', 200);
+        y_grid.setAttribute('y2', 550 - (offset * y));
+        y_grid.setAttribute('stroke', 'green');
+        y_grid.setAttribute('stroke-width', 1);
+        svg.appendChild(y_grid);
+
+        const y_grid_label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        y_grid_label.setAttribute('x', 2);
+        y_grid_label.setAttribute('y', 550 - (offset * y) + 5);
+        y_grid_label.setAttribute('fill', 'white');
+        y_grid_label.innerHTML = Math.round(y * mult * 100);
+        svg.appendChild(y_grid_label);
+    }
+
+    // x-grid
+    for (let x = 1; x < 8; x++) {
+        const offset = 200 / 8;
+        const x_grid = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        x_grid.setAttribute('x1', x * offset);
+        x_grid.setAttribute('y1', 350);
+        x_grid.setAttribute('x2', x * offset);
+        x_grid.setAttribute('y2', 550);
+        x_grid.setAttribute('stroke', 'grey');
+        x_grid.setAttribute('stroke-width', 1);
+        const x_grid_label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        x_grid_label.setAttribute('y', 570);
+        if (x == 1) {
+            x_grid_label.setAttribute('fill', 'red');
+        }
+        else {
+            x_grid_label.setAttribute('fill', 'white');
+        }
+        x_grid_label.innerHTML = wd[x-1];
+        svg.appendChild(x_grid);
+        svg.appendChild(x_grid_label);
+        let svgrect = x_grid_label.getBBox();
+        x_grid_label.setAttribute('x', x * offset - (svgrect.width / 2));
+    }
+
+    svg.appendChild(x_axis);
+
+    PlotWeekdayLine(maxY, dtp);
+}
+
+function PlotWeekdayLine(maxY, dtp) {
+    const xscale = 200 / 8;
+    const yscale = 200 / maxY;
+    const svg = document.getElementById('weekday_graph');
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    let linedata = (xscale) + ',' + (550 - ((g_analyze[dtp].weekday["0"].total / g_analyze[dtp].weekday["0"].count) * yscale));
+    const dot = [document.createElementNS('http://www.w3.org/2000/svg', 'circle')];
+    dot[0].setAttribute('r', '5');
+    dot[0].setAttribute('cx', xscale);
+    dot[0].setAttribute('cy', (550 - ((g_analyze[dtp].weekday["0"].total / g_analyze[dtp].weekday["0"].count) * yscale)));
+    dot[0].setAttribute('fill', 'rgb(250,255,50)');
+    dot[0].setAttribute('data-label', wd[0] + ',' + (Math.round(10 * (g_analyze[dtp].weekday["0"].total / g_analyze[dtp].weekday["0"].count))/10));
+
+    for (let i = 1; i < 7; i++) {
+        linedata += ' ' + ((i + 1) * xscale) + ',' + (550 - ((g_analyze[dtp].weekday[i.toString()].total / g_analyze[dtp].weekday[i.toString()].count) * yscale));
+        dot.push(document.createElementNS('http://www.w3.org/2000/svg', 'circle'));
+        dot[dot.length - 1].setAttribute('r', '5');
+        dot[dot.length - 1].setAttribute('cx', ((i + 1) * xscale));
+        dot[dot.length - 1].setAttribute('cy', (550 - ((g_analyze[dtp].weekday[i.toString()].total / g_analyze[dtp].weekday[i.toString()].count) * yscale)));
+        dot[dot.length - 1].setAttribute('fill', 'rgb(250,255,50)');
+        dot[dot.length - 1].setAttribute('data-label', wd[i] + ',' + (Math.round(10 * (g_analyze[dtp].weekday[i.toString()].total / g_analyze[dtp].weekday[i.toString()].count))/10));
+    }
+    line.setAttribute('points', linedata);
+    line.setAttribute('stroke', 'rgb(50,255,50)');
+    line.setAttribute('stroke-width', '3');
+    line.setAttribute('fill', 'none');
+
+    svg.appendChild(line);
+    for (let i = 0; i < dot.length; i++) {
+        svg.appendChild(dot[i]);
+    }
+}
+
+function MonthGraph() {
     let maxY = 0;
     let startIndex = 0;
+    let endIndex = 99999;
     let dtp = parseInt(document.getElementById('datatoplot').value);
     let year = document.getElementById('year').value;
     let month = document.getElementById('month').value;
@@ -311,10 +468,16 @@ function GenerateGraph() {
                 maxY = parseInt(g_data[i][dtp]);
             }
             startIndex = i;
+            if(i < endIndex) {
+                endIndex = i;
+            }
         }
     }
-    if (g_analyze[dtp]["month"][month].total / g_analyze[dtp]["month"][month].count > maxY) {
-        maxY = g_analyze[dtp]["month"][month].total / g_analyze[dtp]["month"][month].count;
+    if (g_analyze[dtp]["monthlydata"][year + month].total / g_analyze[dtp]["monthlydata"][year + month].count > maxY) {
+        maxY = g_analyze[dtp]["monthlydata"][year + month].total / g_analyze[dtp]["monthlydata"][year + month].count;
+    }
+    if (g_analyze[dtp]["all"].total / g_analyze[dtp]["all"].count > maxY) {
+        maxY = g_analyze[dtp]["all"].total / g_analyze[dtp]["all"].count;
     }
     maxY *= 1.05;// Get some top margin
     const svg = document.getElementById('month_graph');
@@ -348,10 +511,18 @@ function GenerateGraph() {
         y_grid.setAttribute('stroke', 'green');
         y_grid.setAttribute('stroke-width', 1);
         svg.appendChild(y_grid);
+
+        const y_grid_label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        y_grid_label.setAttribute('x', 2);
+        y_grid_label.setAttribute('y', 300 - (offset * y) + 5);
+        y_grid_label.setAttribute('fill', 'white');
+        y_grid_label.innerHTML = Math.round(y * mult * 100);
+        svg.appendChild(y_grid_label);
     }
 
     // x-grid
-    for (let x = 1; x < 32; x++) {
+    let daysInMonth = new Date(parseInt(year), parseInt(month), 0).getDate();
+    for (let x = 1; x < 32 && x < daysInMonth + 1; x++) {
         const offset = 800 / 32;
         const x_grid = document.createElementNS('http://www.w3.org/2000/svg', 'line');
         x_grid.setAttribute('x1', x * offset);
@@ -362,16 +533,24 @@ function GenerateGraph() {
         x_grid.setAttribute('stroke-width', 1);
         const x_grid_label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         x_grid_label.setAttribute('y', 320);
-        let closed = true;
-        for(let i = startIndex; i >= 0; i--) {
-            if(g_data[i][0] === year && g_data[i][1] === month && parseInt(g_data[i][2]) == x) {
-                if(g_data[i][27].length == 1) {
-                    closed = false;
+        let closed = 2;
+        if (parseInt(g_data[endIndex][2]) < x) {
+            closed = 1;
+        }
+        else {
+            for(let i = startIndex; i >= 0; i--) {
+                if(g_data[i][0] === year && g_data[i][1] === month && parseInt(g_data[i][2]) == x) {
+                    if(g_data[i][27].length == 1) {
+                        closed = false;
+                    }
                 }
             }
         }
-        if (closed) {
+        if (closed == 2) {
             x_grid_label.setAttribute('fill', 'red');
+        }
+        else if(closed == 1) {
+            x_grid_label.setAttribute('fill', 'grey');
         }
         else {
             x_grid_label.setAttribute('fill', 'white');
@@ -385,10 +564,16 @@ function GenerateGraph() {
 
     svg.appendChild(x_axis);
 
-    PlotLine(maxY, startIndex, dtp, (g_analyze[dtp]["month"][month].total / g_analyze[dtp]["month"][month].count));
+    PlotLine(
+        maxY,
+        startIndex,
+        dtp,
+        (g_analyze[dtp]["monthlydata"][year + month].total / g_analyze[dtp]["monthlydata"][year + month].count),
+        (g_analyze[dtp]["all"].total / g_analyze[dtp]["all"].count)
+        );
 }
 
-function PlotLine(maxY, startIndex, dtp, average) {
+function PlotLine(maxY, startIndex, dtp, average, alltimeaverage) {
     let year = document.getElementById('year').value;
     let month = document.getElementById('month').value;
     const xscale = 800 / 32;
@@ -403,6 +588,27 @@ function PlotLine(maxY, startIndex, dtp, average) {
     avg_line.setAttribute('stroke', 'blue');
     avg_line.setAttribute('stroke-width', 2);
     svg.appendChild(avg_line);
+    const avg_line_label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    avg_line_label.setAttribute('x', 800);
+    avg_line_label.setAttribute('y', (300 - (average * yscale)) + 5);
+    avg_line_label.setAttribute('fill', 'blue');
+    avg_line_label.innerHTML = Math.round(10 * average) / 10;
+    svg.appendChild(avg_line_label);
+
+    const all_avg_line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    all_avg_line.setAttribute('x1', 0);
+    all_avg_line.setAttribute('y1', (300 - (alltimeaverage * yscale)));
+    all_avg_line.setAttribute('x2', 800);
+    all_avg_line.setAttribute('y2', (300 - (alltimeaverage * yscale)));
+    all_avg_line.setAttribute('stroke', 'rgb(150,50,50)');
+    all_avg_line.setAttribute('stroke-width', 1);
+    svg.appendChild(all_avg_line);
+    const all_avg_line_label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    all_avg_line_label.setAttribute('x', 800);
+    all_avg_line_label.setAttribute('y', (300 - (alltimeaverage * yscale)) + 5);
+    all_avg_line_label.setAttribute('fill', 'rgb(150,50,50)');
+    all_avg_line_label.innerHTML = Math.round(10 * alltimeaverage) / 10;
+    svg.appendChild(all_avg_line_label);
 
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
     let linedata = (parseInt(g_data[startIndex][2]) * xscale) + ',' + (300 - (parseInt(g_data[startIndex][dtp]) * yscale));
