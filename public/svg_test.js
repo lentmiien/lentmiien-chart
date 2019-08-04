@@ -7,15 +7,274 @@ let cursor = {
 };
 
 let g_data = [];
+const g_analyze = {
+    "3": {
+        "all": {},
+        "year": {},
+        "month": {},
+        "date": {},
+        "weekday": {}
+    }
+};
 GetData();
 async function GetData() {
+    // Load data
     const response = await fetch('data_file.csv');
     let load_data = await response.text();
     let rows = load_data.split("\n").slice(5);// Remove all uncomplete rows
-    for (let i = 0; i < rows.length - 1; i++) {
-        g_data.push(rows[i].split(","));
+    
+    // Setup analyze structure
+    const ids = [ 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20, 21, 22, 23, 24, 25, 26 ];
+    for(let i = 0; i < ids.length; i++) {
+        g_analyze[ids[i].toString()] = {
+            "all": {
+                "total": 0,
+                "count": 0
+            },
+            "year": {
+                "2018": {
+                    "total": 0,
+                    "count": 0
+                },
+                "2019": {
+                    "total": 0,
+                    "count": 0
+                }
+            },
+            "month": {
+                "1": {
+                    "total": 0,
+                    "count": 0
+                },
+                "2": {
+                    "total": 0,
+                    "count": 0
+                },
+                "3": {
+                    "total": 0,
+                    "count": 0
+                },
+                "4": {
+                    "total": 0,
+                    "count": 0
+                },
+                "5": {
+                    "total": 0,
+                    "count": 0
+                },
+                "6": {
+                    "total": 0,
+                    "count": 0
+                },
+                "7": {
+                    "total": 0,
+                    "count": 0
+                },
+                "8": {
+                    "total": 0,
+                    "count": 0
+                },
+                "9": {
+                    "total": 0,
+                    "count": 0
+                },
+                "10": {
+                    "total": 0,
+                    "count": 0
+                },
+                "11": {
+                    "total": 0,
+                    "count": 0
+                },
+                "12": {
+                    "total": 0,
+                    "count": 0
+                }
+            },
+            "date": {
+                "1": {
+                    "total": 0,
+                    "count": 0
+                },
+                "2": {
+                    "total": 0,
+                    "count": 0
+                },
+                "3": {
+                    "total": 0,
+                    "count": 0
+                },
+                "4": {
+                    "total": 0,
+                    "count": 0
+                },
+                "5": {
+                    "total": 0,
+                    "count": 0
+                },
+                "6": {
+                    "total": 0,
+                    "count": 0
+                },
+                "7": {
+                    "total": 0,
+                    "count": 0
+                },
+                "8": {
+                    "total": 0,
+                    "count": 0
+                },
+                "9": {
+                    "total": 0,
+                    "count": 0
+                },
+                "10": {
+                    "total": 0,
+                    "count": 0
+                },
+                "11": {
+                    "total": 0,
+                    "count": 0
+                },
+                "12": {
+                    "total": 0,
+                    "count": 0
+                },
+                "13": {
+                    "total": 0,
+                    "count": 0
+                },
+                "14": {
+                    "total": 0,
+                    "count": 0
+                },
+                "15": {
+                    "total": 0,
+                    "count": 0
+                },
+                "16": {
+                    "total": 0,
+                    "count": 0
+                },
+                "17": {
+                    "total": 0,
+                    "count": 0
+                },
+                "18": {
+                    "total": 0,
+                    "count": 0
+                },
+                "19": {
+                    "total": 0,
+                    "count": 0
+                },
+                "20": {
+                    "total": 0,
+                    "count": 0
+                },
+                "21": {
+                    "total": 0,
+                    "count": 0
+                },
+                "22": {
+                    "total": 0,
+                    "count": 0
+                },
+                "23": {
+                    "total": 0,
+                    "count": 0
+                },
+                "24": {
+                    "total": 0,
+                    "count": 0
+                },
+                "25": {
+                    "total": 0,
+                    "count": 0
+                },
+                "26": {
+                    "total": 0,
+                    "count": 0
+                },
+                "27": {
+                    "total": 0,
+                    "count": 0
+                },
+                "28": {
+                    "total": 0,
+                    "count": 0
+                },
+                "29": {
+                    "total": 0,
+                    "count": 0
+                },
+                "30": {
+                    "total": 0,
+                    "count": 0
+                },
+                "31": {
+                    "total": 0,
+                    "count": 0
+                }
+            },
+            "weekday": {
+                "0": {
+                    "total": 0,
+                    "count": 0
+                },
+                "1": {
+                    "total": 0,
+                    "count": 0
+                },
+                "2": {
+                    "total": 0,
+                    "count": 0
+                },
+                "3": {
+                    "total": 0,
+                    "count": 0
+                },
+                "4": {
+                    "total": 0,
+                    "count": 0
+                },
+                "5": {
+                    "total": 0,
+                    "count": 0
+                },
+                "6": {
+                    "total": 0,
+                    "count": 0
+                }
+            }
+        };
     }
 
+    // Process data
+    for (let i = 0; i < rows.length - 1; i++) {
+        g_data.push(rows[i].split(","));
+
+        // Analyze data
+        for(let j = 0; j < ids.length; j++) {
+            if (g_data[i][ids[j]].length > 0) {
+                let value = parseInt(g_data[i][ids[j]]);
+                let thisId = ids[j].toString();
+                g_analyze[thisId]["all"].total += value;
+                g_analyze[thisId]["all"].count++;
+                g_analyze[thisId]["year"][g_data[i][0]].total += value;
+                g_analyze[thisId]["year"][g_data[i][0]].count++;
+                g_analyze[thisId]["month"][g_data[i][1]].total += value;
+                g_analyze[thisId]["month"][g_data[i][1]].count++;
+                g_analyze[thisId]["date"][g_data[i][2]].total += value;
+                g_analyze[thisId]["date"][g_data[i][2]].count++;
+                let d = new Date(parseInt(g_data[i][0]), parseInt(g_data[i][1]) - 1, parseInt(g_data[i][2]));
+                g_analyze[thisId]["weekday"][d.getDay().toString()].total += value;
+                g_analyze[thisId]["weekday"][d.getDay().toString()].count++;
+            }
+        }
+    }
+
+    // Setup interface
     const datatoplot = document.getElementById('datatoplot');
     datatoplot.innerHTML += '<option value="3">e_support(IN)</option>';
     datatoplot.innerHTML += '<option value="4">e_support(OUT)</option>';
@@ -54,6 +313,10 @@ function GenerateGraph() {
             startIndex = i;
         }
     }
+    if (g_analyze[dtp]["month"][month].total / g_analyze[dtp]["month"][month].count > maxY) {
+        maxY = g_analyze[dtp]["month"][month].total / g_analyze[dtp]["month"][month].count;
+    }
+    maxY *= 1.05;// Get some top margin
     const svg = document.getElementById('month_graph');
     svg.innerHTML = '';
     const x_axis = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -122,15 +385,25 @@ function GenerateGraph() {
 
     svg.appendChild(x_axis);
 
-    PlotLine(maxY, startIndex, dtp);
+    PlotLine(maxY, startIndex, dtp, (g_analyze[dtp]["month"][month].total / g_analyze[dtp]["month"][month].count));
 }
 
-function PlotLine(maxY, startIndex, dtp) {
+function PlotLine(maxY, startIndex, dtp, average) {
     let year = document.getElementById('year').value;
     let month = document.getElementById('month').value;
     const xscale = 800 / 32;
     const yscale = 300 / maxY;
     const svg = document.getElementById('month_graph');
+
+    const avg_line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    avg_line.setAttribute('x1', 0);
+    avg_line.setAttribute('y1', (300 - (average * yscale)));
+    avg_line.setAttribute('x2', 800);
+    avg_line.setAttribute('y2', (300 - (average * yscale)));
+    avg_line.setAttribute('stroke', 'blue');
+    avg_line.setAttribute('stroke-width', 2);
+    svg.appendChild(avg_line);
+
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
     let linedata = (parseInt(g_data[startIndex][2]) * xscale) + ',' + (300 - (parseInt(g_data[startIndex][dtp]) * yscale));
     const dot = [document.createElementNS('http://www.w3.org/2000/svg', 'circle')];
