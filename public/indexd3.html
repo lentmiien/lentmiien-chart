@@ -21,34 +21,8 @@
     <br>
     Year:<input id="year" type="text" value="2019">, Month:<input id="month" type="text" value="6"><br>
     Data to plot:<select id="datatoplot"></select><br>
-    <button onclick="GenerateGraph()">Generate</button>
+    <button onclick="Plot()">Generate</button>
 
-    <!--<script src="script.js"></script>-->
-    <script>
-
-let c = d3.select('#month_graph').selectAll('circle');
-
-const data = [400, 200, 300, 250, 300, 400, 350, 450];
-let ce = c.data(data).enter().append('circle');
-
-ce.style('fill', 'green');
-
-ce.attr('r', 15);
-ce.attr('cy', (d,i) => {return 600 - d;});
-ce.attr('cx', (d,i) => {return i * 100;});
-
-//This is the accessor function we talked about above
-const lineFunction = d3.svg.line()
-.x(function(d,i) { return i*100; })
-.y(function(d) { return d; })
-.interpolate('linear');
-
-//The line SVG Path we draw
-var lineGraph = c.append("path")
-.attr("d", lineFunction(data))
-.attr("stroke", "blue")
-.attr("stroke-width", 2)
-.attr("fill", "none");
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
