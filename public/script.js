@@ -186,7 +186,7 @@ function Plot() {
     const graph = d3.select('#month_graph');
 
     // Line helper function
-    const lineFunction = d3.line()
+/*    const lineFunction = d3.line()
         .x(function (d, i) { return i * 25; })
         .y(function (d) { return 600 - d; });
 
@@ -196,12 +196,12 @@ function Plot() {
         .attr("stroke", "blue")
         .attr("stroke-width", 2)
         .attr("fill", "none");
-    
+    */
     // Draw dots
     const c = graph.selectAll('circle');
-    let ce = c.data(global_data.amonth).enter().append('circle');
+    let ce = c.data(global_data.year.array[1].array[5].array).enter().append('circle');
     ce.style('fill', 'green');
     ce.attr('r', 5);
-    ce.attr('cy', (d, i) => { return 600 - d; });
+    ce.attr('cy', (d, i) => { return 600 - (d[i]['3'].total / d[i]['3'].days); });
     ce.attr('cx', (d, i) => { return i * 25; });
 }
