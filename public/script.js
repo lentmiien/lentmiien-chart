@@ -1,6 +1,18 @@
 const plotable_col_ids = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20, 21, 22, 23, 24, 25, 26];
 const global_data = {
-	year: {}
+	year: {
+        data: { total: {}, days: {} },
+        weekday: {
+            "0": { total: {}, days: {} },
+            "1": { total: {}, days: {} },
+            "2": { total: {}, days: {} },
+            "3": { total: {}, days: {} },
+            "4": { total: {}, days: {} },
+            "5": { total: {}, days: {} },
+            "6": { total: {}, days: {} }
+        },
+        array: []
+    }
 };
 
 /* Data structure
@@ -47,10 +59,86 @@ async function GetData() {
     let rows = load_data.split("\n").slice(5);// Remove all uncomplete rows
     
     for (let i = rows.length - 1; i >= 0; i--) {
-    	let year = rows[i][0];
-        let month = rows[i][1];
-        let date = rows[i][2];
+        let rowdata = rows[i].split(",");
+        let year = rowdata[0];
+        let month = rowdata[1];
+        let date = rowdata[2];
         let wday = (new Date(parseInt(year), parseInt(month) - 1, parseInt(date))).getDay();
+        let wdID = wday.toString();
+
+        // Array[Year]
+        if (global_data.year.array.hasOwnProperty(year) == false) {
+            global_data.year.array[year] = {
+                data: { total: {}, days: {} },
+                weekday: {
+                    "0": { total: {}, days: {} },
+                    "1": { total: {}, days: {} },
+                    "2": { total: {}, days: {} },
+                    "3": { total: {}, days: {} },
+                    "4": { total: {}, days: {} },
+                    "5": { total: {}, days: {} },
+                    "6": { total: {}, days: {} }
+                },
+                array: []
+            };
+        }
+        // Array[Month]
+        // Array[Date]
+
+        for(let j = 0; j < plotable_col_ids.length; j++) {
+            let colID = plotable_col_ids[j].toString();
+            let value = parseInt(rowdata[plotable_col_ids[j]]);
+
+            if (isNaN(value) == false) {
+                // Overall Total data
+                if(global_data.year.data.total.hasOwnProperty(colID) == true) {
+                    global_data.year.data.total[colID] += value;
+                    global_data.year.data.days[colID]++;
+                }
+                else {
+                    global_data.year.data.total[colID] = value;
+                    global_data.year.data.days[colID] = 1;
+                }
+
+                // Overall Weekday data
+                if (global_data.year.weekday[wdID].total.hasOwnProperty(colID) == true) {
+                    global_data.year.weekday[wdID].total[colID] += value;
+                    global_data.year.weekday[wdID].days[colID]++;
+                }
+                else {
+                    global_data.year.weekday[wdID].total[colID] = value;
+                    global_data.year.weekday[wdID].days[colID] = 1;
+                }
+
+                // Year Total data
+                if (global_data.year.array[year].data.total.hasOwnProperty(colID) == true) {
+                    global_data.year.array[year].data.total[colID] += value;
+                    global_data.year.array[year].data.days[colID]++;
+                }
+                else {
+                    global_data.year.array[year].data.total[colID] = value;
+                    global_data.year.array[year].data.days[colID] = 1;
+                }
+
+                // Year Weekday data
+                if (global_data.year.array[year].weekday[wdID].total.hasOwnProperty(colID) == true) {
+                    global_data.year.array[year].weekday[wdID].total[colID] += value;
+                    global_data.year.array[year].weekday[wdID].days[colID]++;
+                }
+                else {
+                    global_data.year.array[year].weekday[wdID].total[colID] = value;
+                    global_data.year.array[year].weekday[wdID].days[colID] = 1;
+                }
+            }
+        }
+
+        // Array[Month]
+        // Total data
+        // Weekday data
+        // Array[Date]
+        // Total data (In the end only 1 day data)
+        // *Weekday not needed for 1 day
+        // *Array not needed as days are shortest period of time
     }
 }
 
