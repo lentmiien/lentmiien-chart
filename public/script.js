@@ -106,6 +106,10 @@ async function GetData() {
         if (global_data.year.array[_2018_base_year].array[_1_base_month].array.length == 0) {
         	for(let day = 0; day < daysinmonth; day++) {
         		global_data.year.array[_2018_base_year].array[_1_base_month].array.push({data: { total: {}, days: {} }});
+                for (let t = 0; t < plotable_col_ids.length; t++) {
+                	global_data.year.array[_2018_base_year].array[_1_base_month].array[day].data.total[plotable_col_ids[t].toString()] = 0;
+                	global_data.year.array[_2018_base_year].array[_1_base_month].array[day].data.days[plotable_col_ids[t].toString()] = 0;
+                }
         	}
         }
 
