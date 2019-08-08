@@ -58,7 +58,7 @@ async function GetData() {
     let load_data = await response.text();
     let rows = load_data.split("\n").slice(5);// Remove all uncomplete rows
     
-    for (let i = rows.length - 1; i >= 0; i--) {
+    for (let i = rows.length - 2; i >= 0; i--) {
         let rowdata = rows[i].split(",");
         let year = rowdata[0];
         let _2018_base_year = parseInt(year) - 2018;
@@ -180,28 +180,57 @@ async function GetData() {
             }
         }
     }
+
+    // Setup interface
+    const datatoplot = document.getElementById('datatoplot');
+    datatoplot.innerHTML += '<option value="3">e_support(IN)</option>';
+    datatoplot.innerHTML += '<option value="4">e_support(OUT)</option>';
+    datatoplot.innerHTML += '<option value="5">Rakuten(IN)</option>';
+    datatoplot.innerHTML += '<option value="6">Rakuten(OUT)</option>';
+    datatoplot.innerHTML += '<option value="7">ebay(IN)</option>';
+    datatoplot.innerHTML += '<option value="8">ebay(OUT)</option>';
+    datatoplot.innerHTML += '<option value="9">PayPal(IN)</option>';
+    datatoplot.innerHTML += '<option value="10">PayPal(OUT)</option>';
+    datatoplot.innerHTML += '<option value="11">Amazon(IN)</option>';
+    datatoplot.innerHTML += '<option value="12">Amazon(OUT)</option>';
+    datatoplot.innerHTML += '<option value="13">Cancel</option>';
+    datatoplot.innerHTML += '<option value="14">Zendesk</option>';
+    datatoplot.innerHTML += '<option value="18">Total</option>';
+    datatoplot.innerHTML += '<option value="19">_Graveyard</option>';
+    datatoplot.innerHTML += '<option value="20">Order Acknowledgment</option>';
+    datatoplot.innerHTML += '<option value="21">Order Cancellation</option>';
+    datatoplot.innerHTML += '<option value="22">Order Update</option>';
+    datatoplot.innerHTML += '<option value="23">Payment Acknowledgment</option>';
+    datatoplot.innerHTML += '<option value="24">Payment Reminder</option>';
+    datatoplot.innerHTML += '<option value="25">Payment Request</option>';
+    datatoplot.innerHTML += '<option value="26">Shipping Notification</option>';
 }
 
 function Plot() {
+    const year = parseInt(document.getElementById('year').value) - 2018;
+    const month = parseInt(document.getElementById('month').value) - 1;
+    const column = document.getElementById('datatoplot').value;
     const graph = d3.select('#month_graph');
 
     // Line helper function
-/*    const lineFunction = d3.line()
-        .x(function (d, i) { return i * 25; })
-        .y(function (d) { return 600 - d; });
+    const lineFunction = d3.line()
+        .x(function(d, i) { return i * 25; })
+        .y(function (d, i) { return 600 - (d.data.total[column] / d.data.days[column]); });
 
     // Draw line
-    graph.append("path")
-        .attr("d", lineFunction(global_data.amonth))
+    graph.select("path")
+        .attr("d", lineFunction(global_data.year.array[year].array[month].array))
         .attr("stroke", "blue")
         .attr("stroke-width", 2)
         .attr("fill", "none");
-    */
+
     // Draw dots
-    const c = graph.selectAll('circle');
-    let ce = c.data(global_data.year.array[1].array[5].array).enter().append('circle');
-    ce.style('fill', 'green');
-    ce.attr('r', 5);
-    ce.attr('cy', (d, i) => { return 600 - (d[i]['3'].total / d[i]['3'].days); });
-    ce.attr('cx', (d, i) => { return i * 25; });
+    const c = graph.selectAll('circle').data(global_data.year.array[year].array[month].array);
+    c.attr('cy', (d, i) => { return 600 - (d.data.total[column] / d.data.days[column]); });
+    let c_enter = c.enter().append('circle');
+    c_enter.style('fill', 'green');
+    c_enter.attr('r', 5);
+    c_enter.attr('cy', (d, i) => { return 600 - (d.data.total[column] / d.data.days[column]); });
+    c_enter.attr('cx', (d, i) => { return i * 25; });
+    c.exit().remove();
 }
