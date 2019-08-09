@@ -2,15 +2,15 @@ const plotable_col_ids = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20, 2
 const global_data = {
 	year: {
         data: { total: {}, days: {} },
-        weekday: {
-            "0": { total: {}, days: {} },
-            "1": { total: {}, days: {} },
-            "2": { total: {}, days: {} },
-            "3": { total: {}, days: {} },
-            "4": { total: {}, days: {} },
-            "5": { total: {}, days: {} },
-            "6": { total: {}, days: {} }
-        },
+        weekday: [
+            { total: {}, days: {} },
+            { total: {}, days: {} },
+            { total: {}, days: {} },
+            { total: {}, days: {} },
+            { total: {}, days: {} },
+            { total: {}, days: {} },
+            { total: {}, days: {} }
+        ],
         array: []
     }
 };
@@ -67,21 +67,20 @@ async function GetData() {
         let date = rowdata[2];
         let _1_base_date = parseInt(date) - 1;
         let wday = (new Date(parseInt(year), parseInt(month) - 1, parseInt(date))).getDay();
-        let wdID = wday.toString();
 
         // Array[Year]
         while (global_data.year.array.length <= _2018_base_year) {
             global_data.year.array.push({
                 data: { total: {}, days: {} },
-                weekday: {
-                    "0": { total: {}, days: {} },
-                    "1": { total: {}, days: {} },
-                    "2": { total: {}, days: {} },
-                    "3": { total: {}, days: {} },
-                    "4": { total: {}, days: {} },
-                    "5": { total: {}, days: {} },
-                    "6": { total: {}, days: {} }
-                },
+                weekday: [
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} }
+                ],
                 array: []
             });
         }
@@ -89,15 +88,15 @@ async function GetData() {
         while (global_data.year.array[_2018_base_year].array.length <= _1_base_month) {
             global_data.year.array[_2018_base_year].array.push({
                 data: { total: {}, days: {} },
-                weekday: {
-                    "0": { total: {}, days: {} },
-                    "1": { total: {}, days: {} },
-                    "2": { total: {}, days: {} },
-                    "3": { total: {}, days: {} },
-                    "4": { total: {}, days: {} },
-                    "5": { total: {}, days: {} },
-                    "6": { total: {}, days: {} }
-                },
+                weekday: [
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} }
+                ],
                 array: []
             });
         }
@@ -129,13 +128,13 @@ async function GetData() {
                 }
 
                 // Overall Weekday data
-                if (global_data.year.weekday[wdID].total.hasOwnProperty(colID) == true) {
-                    global_data.year.weekday[wdID].total[colID] += value;
-                    global_data.year.weekday[wdID].days[colID]++;
+                if (global_data.year.weekday[wday].total.hasOwnProperty(colID) == true) {
+                    global_data.year.weekday[wday].total[colID] += value;
+                    global_data.year.weekday[wday].days[colID]++;
                 }
                 else {
-                    global_data.year.weekday[wdID].total[colID] = value;
-                    global_data.year.weekday[wdID].days[colID] = 1;
+                    global_data.year.weekday[wday].total[colID] = value;
+                    global_data.year.weekday[wday].days[colID] = 1;
                 }
 
                 // Year Total data
@@ -149,13 +148,13 @@ async function GetData() {
                 }
 
                 // Year Weekday data
-                if (global_data.year.array[_2018_base_year].weekday[wdID].total.hasOwnProperty(colID) == true) {
-                    global_data.year.array[_2018_base_year].weekday[wdID].total[colID] += value;
-                    global_data.year.array[_2018_base_year].weekday[wdID].days[colID]++;
+                if (global_data.year.array[_2018_base_year].weekday[wday].total.hasOwnProperty(colID) == true) {
+                    global_data.year.array[_2018_base_year].weekday[wday].total[colID] += value;
+                    global_data.year.array[_2018_base_year].weekday[wday].days[colID]++;
                 }
                 else {
-                    global_data.year.array[_2018_base_year].weekday[wdID].total[colID] = value;
-                    global_data.year.array[_2018_base_year].weekday[wdID].days[colID] = 1;
+                    global_data.year.array[_2018_base_year].weekday[wday].total[colID] = value;
+                    global_data.year.array[_2018_base_year].weekday[wday].days[colID] = 1;
                 }
                 
                 // Month Total data
@@ -169,13 +168,13 @@ async function GetData() {
                 }
 
                 // Month Weekday data
-                if (global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wdID].total.hasOwnProperty(colID) == true) {
-                    global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wdID].total[colID] += value;
-                    global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wdID].days[colID]++;
+                if (global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wday].total.hasOwnProperty(colID) == true) {
+                    global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wday].total[colID] += value;
+                    global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wday].days[colID]++;
                 }
                 else {
-                    global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wdID].total[colID] = value;
-                    global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wdID].days[colID] = 1;
+                    global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wday].total[colID] = value;
+                    global_data.year.array[_2018_base_year].array[_1_base_month].weekday[wday].days[colID] = 1;
                 }
                 
                 // Date Total data
