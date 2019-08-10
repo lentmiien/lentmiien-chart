@@ -241,10 +241,25 @@ function Plot() {
 
     // Draw dots
     const c = graph.selectAll('circle').data(global_data.year.array[year].array[month].array);
+    c.style('fill', (d, i) => {
+        if (d.data.total["4"] > 0) {
+            return 'green';
+        }
+        else {
+            return 'red';
+        }
+    });
     c.attr('cy', (d, i) => { return y(d.data.total[column]); });
     c.attr('cx', (d, i) => { return x(i+1); });
     let c_enter = c.enter().append('circle');
-    c_enter.style('fill', 'green');
+    c_enter.style('fill', (d, i) => {
+        if(d.data.total["4"] > 0) {
+            return 'green';
+        }
+        else {
+            return 'red';
+        }
+    });
     c_enter.attr('r', 5);
     c_enter.attr('cy', (d, i) => { return y(d.data.total[column]); });
     c_enter.attr('cx', (d, i) => { return x(i+1); });
