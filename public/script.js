@@ -81,6 +81,39 @@ async function GetData() {
                     { total: {}, days: {} },
                     { total: {}, days: {} }
                 ],
+                date: [
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} },
+                    { total: {}, days: {} }
+                ],
                 array: []
             });
         }
@@ -156,6 +189,21 @@ async function GetData() {
                     global_data.year.array[_2018_base_year].weekday[wday].total[colID] = value;
                     global_data.year.array[_2018_base_year].weekday[wday].days[colID] = 1;
                 }
+
+                // Year Date data
+                for(let avg = -2; avg <= 2; avg++) {
+                    let index = _1_base_date + avg;
+                    if(index < 0) { index += 31; }
+                    if(index > 30) { index -= 31; }
+                    if (global_data.year.array[_2018_base_year].date[index].total.hasOwnProperty(colID) == true) {
+                        global_data.year.array[_2018_base_year].date[index].total[colID] += value;
+                        global_data.year.array[_2018_base_year].date[index].days[colID]++;
+                    }
+                    else {
+                        global_data.year.array[_2018_base_year].date[index].total[colID] = value;
+                        global_data.year.array[_2018_base_year].date[index].days[colID] = 1;
+                    }
+                }
                 
                 // Month Total data
                 if (global_data.year.array[_2018_base_year].array[_1_base_month].data.total.hasOwnProperty(colID) == true) {
@@ -180,6 +228,36 @@ async function GetData() {
                 // Date Total data
                 global_data.year.array[_2018_base_year].array[_1_base_month].array[_1_base_date].data.total[colID] = value;
                 global_data.year.array[_2018_base_year].array[_1_base_month].array[_1_base_date].data.days[colID] = 1;
+            }
+        }
+    }
+
+    // Adjustment for old data (add 1 day for each 0 data date)
+    let yy = 0;
+    for (let mm = 0; mm < 12 && mm < global_data.year.array[yy].array.length; mm++) {
+        for (let dd = 0; dd < 31 && dd < global_data.year.array[yy].array[mm].array.length; dd++) {
+            if(global_data.year.array[yy].array[mm].array[dd].data.total['3'] == 0) {
+                // 0 data date
+                for(let cc = 0; cc < plotable_col_ids.length; cc++) {
+                    const cc_str = plotable_col_ids[cc].toString();
+                    global_data.year.data.days[cc_str]++;
+                    global_data.year.array[yy].data.days[cc_str]++;
+                    global_data.year.array[yy].array[mm].data.days[cc_str]++;
+                }
+            }
+        }
+    }
+    yy = 1;
+    for (let mm = 0; mm < 6 && mm < global_data.year.array[yy].array.length; mm++) {
+        for (let dd = 0; dd < 31 && dd < global_data.year.array[yy].array[mm].array.length; dd++) {
+            if (global_data.year.array[yy].array[mm].array[dd].data.total['3'] == 0) {
+                // 0 data date
+                for (let cc = 0; cc < plotable_col_ids.length; cc++) {
+                    const cc_str = plotable_col_ids[cc].toString();
+                    global_data.year.data.days[cc_str]++;
+                    global_data.year.array[yy].data.days[cc_str]++;
+                    global_data.year.array[yy].array[mm].data.days[cc_str]++;
+                }
             }
         }
     }
@@ -215,6 +293,7 @@ function Plot() {
     const column = document.getElementById('datatoplot').value;
     const m_graph = d3.select('#month_graph');
     const w_graph = d3.select('#weekday_graph');
+    const y_graph = d3.select('#year_graph');
 
     /*******************************
      * Month graph
@@ -234,13 +313,39 @@ function Plot() {
     let yAxis = d3.axisLeft().scale(y);
     d3.select("#month_yaxis").attr("transform", "translate(50, 0)").call(yAxis);
 
+    // Grid lines
+    const make_y_gridlines = () => {
+        return d3.axisLeft(y)
+            .ticks(5)
+    }
+    d3.select("#month_ygrid")
+        .attr("class", "grid")
+        .attr("transform", "translate(50, 0)")
+        .call(make_y_gridlines()
+            .tickSize(-700)
+            .tickFormat("")
+        )
+
     // Line helper function
     const lineFunction = d3.line()
-        .x(function(d, i) { return x(i+1); })
+        .x(function(d, i) { return x(i + 1); })
         .y(function (d, i) { return y(d.data.total[column]); });
+    const lineFunction2 = d3.line()
+        .x(function (d, i) { return x(i + 1); })
+        .y(function (d, i) { return y(d.data.days[column] > 0 ? d.data.total[column] / d.data.days[column] : 0); });
+    const w_lineFunction = d3.line()
+        .x(function (d, i) { return x(i + 1); })
+        .y(function (d, i) { return y(d.days[column] > 0 ? d.total[column] / d.days[column] : 0); });
 
-    // Draw line
-    m_graph.select("path")
+    // Draw year average line
+    m_graph.select("#m_yearavg")
+        .attr("d", w_lineFunction(global_data.year.array[year].date))
+        .attr("stroke", "rgba(200,200,200,0.5)")
+        .attr("stroke-width", 5)
+        .attr("fill", "none");
+
+    // Draw this month line
+    m_graph.select("#m_thism")
         .attr("d", lineFunction(global_data.year.array[year].array[month].array))
         .attr("stroke", "blue")
         .attr("stroke-width", 2)
@@ -294,11 +399,6 @@ function Plot() {
     yAxis = d3.axisLeft().scale(y);
     d3.select("#weekday_yaxis").attr("transform", "translate(50, 0)").call(yAxis);
 
-    // Line helper function
-    const w_lineFunction = d3.line()
-        .x(function (d, i) { return x(i + 1); })
-        .y(function (d, i) { return y(d.days[column] > 0 ? d.total[column] / d.days[column] : 0); });
-
     // Draw year average line
     w_graph.select("#wd_yearavg")
         .attr("d", w_lineFunction(global_data.year.array[year].weekday))
@@ -324,4 +424,52 @@ function Plot() {
     c2_enter.attr('cy', (d, i) => { return y(d.days[column] > 0 ? d.total[column] / d.days[column] : 0); });
     c2_enter.attr('cx', (d, i) => { return x(i + 1); });
     c2.exit().remove();
+
+    /*******************************
+     * Year graph
+     */
+
+    // X scale
+    x = d3.scaleLinear().domain([0, 12]).range([300, 750]);
+    // Y scale
+    y = d3.scaleLinear().domain([
+        0,
+        d3.max([d3.max(global_data.year.array[year > 0 ? year - 1 : year].array, (d) => { return d.data.days[column] > 0 ? d.data.total[column] / d.data.days[column] : 0; }), d3.max(global_data.year.array[year].array, (d) => { return d.data.days[column] > 0 ? d.data.total[column] / d.data.days[column] : 0; })])
+    ]).range([550, 350]);
+
+    // X axis
+    //const wtrans = ['', '', '日', '', '月', '', '火', '', '水', '', '木', '', '金', '', '土'];
+    xAxis = d3.axisBottom().scale(x).tickFormat((d, i) => {
+        return i + '月';
+    });
+    d3.select("#year_xaxis").attr("transform", "translate(0, 550)").call(xAxis);
+    // Y axis
+    yAxis = d3.axisLeft().scale(y);
+    d3.select("#year_yaxis").attr("transform", "translate(300, 0)").call(yAxis);
+
+    // Draw year average line
+    y_graph.select("#y_yearavg")
+        .attr("d", lineFunction2(global_data.year.array[year > 0 ? year - 1 : year].array))
+        .attr("stroke", "rgba(200,200,200,0.5)")
+        .attr("stroke-width", 5)
+        .attr("fill", "none");
+
+    // Draw line
+    y_graph.select("#y_thisy")
+        .attr("d", lineFunction2(global_data.year.array[year].array))
+        .attr("stroke", "blue")
+        .attr("stroke-width", 2)
+        .attr("fill", "none");
+
+    // Draw dots
+    const c3 = y_graph.selectAll('circle').data(global_data.year.array[year].array);
+    c3.style('fill', 'green');
+    c3.attr('cy', (d, i) => { return y(d.data.days[column] > 0 ? d.data.total[column] / d.data.days[column] : 0); });
+    c3.attr('cx', (d, i) => { return x(i + 1); });
+    let c3_enter = c3.enter().append('circle');
+    c3_enter.style('fill', 'green');
+    c3_enter.attr('r', 5);
+    c3_enter.attr('cy', (d, i) => { return y(d.data.days[column] > 0 ? d.data.total[column] / d.data.days[column] : 0); });
+    c3_enter.attr('cx', (d, i) => { return x(i + 1); });
+    c3.exit().remove();
 }
