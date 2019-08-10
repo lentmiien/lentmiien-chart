@@ -213,7 +213,12 @@ function Plot() {
     const year = parseInt(document.getElementById('year').value) - 2018;
     const month = parseInt(document.getElementById('month').value) - 1;
     const column = document.getElementById('datatoplot').value;
-    const graph = d3.select('#month_graph');
+    const m_graph = d3.select('#month_graph');
+    const w_graph = d3.select('#weekday_graph');
+
+    /*******************************
+     * Month graph
+     */
 
     // X scale
     var x = d3.scaleLinear().domain([0, global_data.year.array[year].array[month].array.length]).range([50, 750]);
@@ -221,7 +226,9 @@ function Plot() {
     var y = d3.scaleLinear().domain([0, d3.max(global_data.year.array[year].array[month].array, (d) => { return d.data.total[column]; })]).range([300, 30]);
 
     // X axis
-    let xAxis = d3.axisBottom().scale(x);
+    let xAxis = d3.axisBottom().scale(x).tickFormat((d, i) => {
+        return (i*2) + "日";
+    });
     d3.select("#month_xaxis").attr("transform", "translate(0, 300)").call(xAxis);
     // Y axis
     let yAxis = d3.axisLeft().scale(y);
@@ -233,14 +240,14 @@ function Plot() {
         .y(function (d, i) { return y(d.data.total[column]); });
 
     // Draw line
-    graph.select("path")
+    m_graph.select("path")
         .attr("d", lineFunction(global_data.year.array[year].array[month].array))
         .attr("stroke", "blue")
         .attr("stroke-width", 2)
         .attr("fill", "none");
 
     // Draw dots
-    const c = graph.selectAll('circle').data(global_data.year.array[year].array[month].array);
+    const c = m_graph.selectAll('circle').data(global_data.year.array[year].array[month].array);
     c.style('fill', (d, i) => {
         if (d.data.total["4"] > 0) {
             return 'green';
@@ -264,4 +271,57 @@ function Plot() {
     c_enter.attr('cy', (d, i) => { return y(d.data.total[column]); });
     c_enter.attr('cx', (d, i) => { return x(i+1); });
     c.exit().remove();
+
+    /*******************************
+     * Weekday graph
+     */
+
+    // X scale
+    x = d3.scaleLinear().domain([0, global_data.year.array[year].array[month].weekday.length]).range([50, 250]);
+    // Y scale
+    y = d3.scaleLinear().domain([
+        0,
+        d3.max([d3.max(global_data.year.array[year].weekday, (d) => { return d.days[column] > 0 ? d.total[column] / d.days[column] : 0; }), d3.max(global_data.year.array[year].array[month].weekday, (d) => { return d.days[column] > 0 ? d.total[column] / d.days[column] : 0; })])
+    ]).range([550, 350]);
+
+    // X axis
+    const wtrans = ['', '', '日', '', '月', '', '火', '', '水', '', '木', '', '金', '', '土'];
+    xAxis = d3.axisBottom().scale(x).tickFormat((d, i) => {
+        return wtrans[i];
+    });
+    d3.select("#weekday_xaxis").attr("transform", "translate(0, 550)").call(xAxis);
+    // Y axis
+    yAxis = d3.axisLeft().scale(y);
+    d3.select("#weekday_yaxis").attr("transform", "translate(50, 0)").call(yAxis);
+
+    // Line helper function
+    const w_lineFunction = d3.line()
+        .x(function (d, i) { return x(i + 1); })
+        .y(function (d, i) { return y(d.days[column] > 0 ? d.total[column] / d.days[column] : 0); });
+
+    // Draw year average line
+    w_graph.select("#wd_yearavg")
+        .attr("d", w_lineFunction(global_data.year.array[year].weekday))
+        .attr("stroke", "rgba(200,200,200,0.5)")
+        .attr("stroke-width", 5)
+        .attr("fill", "none");
+
+    // Draw line
+    w_graph.select("#wd_thism")
+        .attr("d", w_lineFunction(global_data.year.array[year].array[month].weekday))
+        .attr("stroke", "blue")
+        .attr("stroke-width", 2)
+        .attr("fill", "none");
+
+    // Draw dots
+    const c2 = w_graph.selectAll('circle').data(global_data.year.array[year].array[month].weekday);
+    c2.style('fill', 'green');
+    c2.attr('cy', (d, i) => { return y(d.days[column] > 0 ? d.total[column] / d.days[column] : 0); });
+    c2.attr('cx', (d, i) => { return x(i + 1); });
+    let c2_enter = c2.enter().append('circle');
+    c2_enter.style('fill', 'green');
+    c2_enter.attr('r', 5);
+    c2_enter.attr('cy', (d, i) => { return y(d.days[column] > 0 ? d.total[column] / d.days[column] : 0); });
+    c2_enter.attr('cx', (d, i) => { return x(i + 1); });
+    c2.exit().remove();
 }
