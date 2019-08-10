@@ -216,18 +216,20 @@ function Plot() {
     const graph = d3.select('#month_graph');
 
     // X scale
-    var x = d3.scaleLinear().domain([0, global_data.year.array[year].array[month].array.length-1]).range([0, 800]);
+    var x = d3.scaleLinear().domain([0, global_data.year.array[year].array[month].array.length]).range([50, 750]);
     // Y scale
-    var y = d3.scaleLinear().domain([0, d3.max(global_data.year.array[year].array[month].array, (d) => { return d.data.total[column]; })]).range([300, 0]);
+    var y = d3.scaleLinear().domain([0, d3.max(global_data.year.array[year].array[month].array, (d) => { return d.data.total[column]; })]).range([300, 30]);
 
     // X axis
+    let xAxis = d3.axisBottom().scale(x);
+    d3.select("#month_xaxis").attr("transform", "translate(0, 300)").call(xAxis);
     // Y axis
     let yAxis = d3.axisLeft().scale(y);
-    graph.select("g").attr("transform", "translate(50, 10)").call(yAxis);
+    d3.select("#month_yaxis").attr("transform", "translate(50, 0)").call(yAxis);
 
     // Line helper function
     const lineFunction = d3.line()
-        .x(function(d, i) { return x(i); })
+        .x(function(d, i) { return x(i+1); })
         .y(function (d, i) { return y(d.data.total[column]); });
 
     // Draw line
@@ -240,11 +242,11 @@ function Plot() {
     // Draw dots
     const c = graph.selectAll('circle').data(global_data.year.array[year].array[month].array);
     c.attr('cy', (d, i) => { return y(d.data.total[column]); });
-    c.attr('cx', (d, i) => { return x(i); });
+    c.attr('cx', (d, i) => { return x(i+1); });
     let c_enter = c.enter().append('circle');
     c_enter.style('fill', 'green');
     c_enter.attr('r', 5);
     c_enter.attr('cy', (d, i) => { return y(d.data.total[column]); });
-    c_enter.attr('cx', (d, i) => { return x(i); });
+    c_enter.attr('cx', (d, i) => { return x(i+1); });
     c.exit().remove();
 }
