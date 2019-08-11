@@ -1,3 +1,12 @@
+let SavedData = {data:[]};
+if(localStorage.hasOwnProperty('GraphData') == true) {
+    SavedData = JSON.parse(localStorage.getItem('GraphData'));
+    const shower = document.getElementById('show');
+    for (let i = 0; i < SavedData.data.length; i++) {
+        shower.innerHTML += '<option value="' + i + '">' + SavedData.data[i].title + '</option>';
+    }
+}
+
 const plotable_col_ids = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 18, 19, 20, 21, 22, 23, 24, 25, 26];
 const global_data = {
 	year: {
@@ -15,48 +24,13 @@ const global_data = {
     }
 };
 
-/* Data structure
-
-global_data
-  year: {
-      data: { total: [plotable_col_ids], days: [plotable_col_ids] },
-      weekday: { 0: [plotable_col_ids], 1...6: [plotable_col_ids] },
-      array: [
-        2018: {...},
-        2019: {
-            data: { total: [plotable_col_ids], days: [plotable_col_ids] },
-            weekday: { 0: [plotable_col_ids], 1...6: [plotable_col_ids] },
-            array: [
-                1: {...},
-                2: {...},
-                 ...
-                11: {...},
-                12: {
-                    data: { total: [plotable_col_ids], days: [plotable_col_ids] },
-                    weekday: { 0: [plotable_col_ids], 1...6: [plotable_col_ids] },
-                    array: [
-                        1: {...},
-                        2: {...},
-                         ...
-                        30: {...},
-                        31: {
-                            data: { total: [plotable_col_ids], days: [plotable_col_ids] },
-                        }
-                    ]
-                }
-            ]
-        }
-      ]
-  }
-
-*/
-
 GetData();
 async function GetData() {
     // Load data
     const response = await fetch('data_file.csv');
     let load_data = await response.text();
     let rows = load_data.split("\n").slice(5);// Remove all uncomplete rows
+    const datetoplot = document.getElementById("datetoplot");
     
     for (let i = rows.length - 2; i >= 0; i--) {
         let rowdata = rows[i].split(",");
@@ -67,6 +41,12 @@ async function GetData() {
         let date = rowdata[2];
         let _1_base_date = parseInt(date) - 1;
         let wday = (new Date(parseInt(year), parseInt(month) - 1, parseInt(date))).getDay();
+
+        // Add dates with data
+        if(datetoplot.innerHTML.indexOf('_' + _2018_base_year + '_' + _1_base_month + '_') == -1) {
+            datetoplot.innerHTML += '<option value="_' + _2018_base_year + '_' + _1_base_month + '_">' + year + '年' + month + '月</option>';
+            datetoplot.value = '_' + _2018_base_year + '_' + _1_base_month + '_';
+        }
 
         // Array[Year]
         while (global_data.year.array.length <= _2018_base_year) {
@@ -264,32 +244,33 @@ async function GetData() {
 
     // Setup interface
     const datatoplot = document.getElementById('datatoplot');
-    datatoplot.innerHTML += '<option value="3">e_support(IN)</option>';
-    datatoplot.innerHTML += '<option value="4">e_support(OUT)</option>';
-    datatoplot.innerHTML += '<option value="5">Rakuten(IN)</option>';
-    datatoplot.innerHTML += '<option value="6">Rakuten(OUT)</option>';
-    datatoplot.innerHTML += '<option value="7">ebay(IN)</option>';
-    datatoplot.innerHTML += '<option value="8">ebay(OUT)</option>';
-    datatoplot.innerHTML += '<option value="9">PayPal(IN)</option>';
-    datatoplot.innerHTML += '<option value="10">PayPal(OUT)</option>';
-    datatoplot.innerHTML += '<option value="11">Amazon(IN)</option>';
-    datatoplot.innerHTML += '<option value="12">Amazon(OUT)</option>';
-    datatoplot.innerHTML += '<option value="13">Cancel</option>';
-    datatoplot.innerHTML += '<option value="14">Zendesk</option>';
-    datatoplot.innerHTML += '<option value="18">Total</option>';
-    datatoplot.innerHTML += '<option value="19">_Graveyard</option>';
-    datatoplot.innerHTML += '<option value="20">Order Acknowledgment</option>';
-    datatoplot.innerHTML += '<option value="21">Order Cancellation</option>';
-    datatoplot.innerHTML += '<option value="22">Order Update</option>';
-    datatoplot.innerHTML += '<option value="23">Payment Acknowledgment</option>';
-    datatoplot.innerHTML += '<option value="24">Payment Reminder</option>';
-    datatoplot.innerHTML += '<option value="25">Payment Request</option>';
-    datatoplot.innerHTML += '<option value="26">Shipping Notification</option>';
+    datatoplot.innerHTML += '<option value="3">顧客問い合わせ（e_support受信）</option>';
+    datatoplot.innerHTML += '<option value="4">メール送信（e_support送信）</option>';
+    datatoplot.innerHTML += '<option value="5">顧客問い合わせ（楽天受信）</option>';
+    datatoplot.innerHTML += '<option value="6">メール送信（楽天送信）</option>';
+    datatoplot.innerHTML += '<option value="7">ebay問い合わせ（受信）</option>';
+    datatoplot.innerHTML += '<option value="8">ebayメッセージ（送信）</option>';
+    datatoplot.innerHTML += '<option value="9">PayPal異議・クレーム更新</option>';
+    datatoplot.innerHTML += '<option value="10">PayPal更新の処理</option>';
+    datatoplot.innerHTML += '<option value="11">Amazon問い合わせ（受信）</option>';
+    datatoplot.innerHTML += '<option value="12">Amazonメッセージ（送信）</option>';
+    datatoplot.innerHTML += '<option value="13">顧客問い合わせでのキャンセル</option>';
+    datatoplot.innerHTML += '<option value="14">Zendesk新規チケット</option>';
+    datatoplot.innerHTML += '<option value="18">FMのe_support送信合計</option>';
+    datatoplot.innerHTML += '<option value="19">その他の送信</option>';
+    datatoplot.innerHTML += '<option value="20">注文完了</option>';
+    datatoplot.innerHTML += '<option value="21">注文キャンセル</option>';
+    datatoplot.innerHTML += '<option value="22">注文変更</option>';
+    datatoplot.innerHTML += '<option value="23">決済完了</option>';
+    datatoplot.innerHTML += '<option value="24">入金リマインダー</option>';
+    datatoplot.innerHTML += '<option value="25">入金案内</option>';
+    datatoplot.innerHTML += '<option value="26">発送案内</option>';
 }
 
 function Plot() {
-    const year = parseInt(document.getElementById('year').value) - 2018;
-    const month = parseInt(document.getElementById('month').value) - 1;
+    const datetoplot = document.getElementById('datetoplot').value.split('_');
+    const year = parseInt(datetoplot[1]);
+    const month = parseInt(datetoplot[2]);
     const column = document.getElementById('datatoplot').value;
     const m_graph = d3.select('#month_graph');
     const w_graph = d3.select('#weekday_graph');
@@ -472,4 +453,71 @@ function Plot() {
     c3_enter.attr('cy', (d, i) => { return y(d.data.days[column] > 0 ? d.data.total[column] / d.data.days[column] : 0); });
     c3_enter.attr('cx', (d, i) => { return x(i + 1); });
     c3.exit().remove();
+
+    // Update title
+    const bu_date = document.getElementById('datetoplot');
+    const bu_data = document.getElementById('datatoplot');
+    document.getElementById('title_cur').innerHTML = bu_data.options[bu_data.selectedIndex].text + '(' + bu_date.options[bu_date.selectedIndex].text + ')';
+}
+
+function CopyGraph() {
+    const bu_date = document.getElementById('datetoplot');
+    const bu_data = document.getElementById('datatoplot');
+    const data = document.getElementsByClassName('graph')[0].outerHTML.split('id=').join('oldid=');
+    SavedData.data.push({
+        title: bu_data.options[bu_data.selectedIndex].text + '(' + bu_date.options[bu_date.selectedIndex].text + ')',
+        content: data
+    });
+    const shower = document.getElementById('show');
+    const bu_shower = shower.value;
+    shower.innerHTML += '<option value="' + (SavedData.data.length - 1) + '">' + SavedData.data[SavedData.data.length - 1].title + '</option>';
+    document.getElementById('datetoplot').value = bu_date.value;
+    document.getElementById('datatoplot').value = bu_data.value;
+    document.getElementById('show').value = bu_shower;
+
+    // Save data in browser
+    localStorage.setItem('GraphData', JSON.stringify(SavedData));
+
+    // Display the graph
+    document.getElementById('show').value = (SavedData.data.length-1).toString();
+    Display();
+}
+
+function Display() {
+    const shower = document.getElementById('show');
+
+    // Clear snd stop if 無し selected
+    if(shower.value.length == 0) {
+        document.getElementById('graph').innerHTML = '';
+        return;
+    }
+
+    const sid = parseInt(shower.value);
+    document.getElementById('graph').innerHTML = SavedData.data[sid].content;
+
+    // Update title
+    document.getElementById('title_save').innerHTML = SavedData.data[sid].title;
+}
+
+function DeleteGraph() {
+    const shower = document.getElementById('show');
+
+    // Stop if 無し selected
+    if (shower.value.length == 0) {
+        return;
+    }
+
+    // Calculate index and remove data
+    const sid = parseInt(shower.value);
+    SavedData.data.splice(sid, 1);
+    document.getElementById('graph').innerHTML = '';
+
+    // Update select box
+    shower.innerHTML = '<option value="">無し</option>';
+    for (let i = 0; i < SavedData.data.length; i++) {
+        shower.innerHTML += '<option value="' + i + '">' + SavedData.data[i].title + '</option>';
+    }
+
+    // Save data in browser
+    localStorage.setItem('GraphData', JSON.stringify(SavedData));
 }

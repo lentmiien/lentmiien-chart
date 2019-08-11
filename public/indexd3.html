@@ -9,36 +9,55 @@
     <title>Document</title>
 </head>
 <body>
-    <svg class="graph" width="800" height="600">
-        <!-- Main graph (Month) width 800, height 300 -->
-        <g id="month_ygrid"></g>
-        <g id="month_yaxis"></g>
-        <g id="month_xaxis"></g>
-        <g id="month_graph">
-            <path id="m_yearavg"></path>
-            <path id="m_thism"></path>
-        </g>
-
-        <!-- Weekday graph (1 week) width 200, height 200 -->
-        <g id="weekday_yaxis"></g>
-        <g id="weekday_xaxis"></g>
-        <g id="weekday_graph">
-            <path id="wd_yearavg"></path>
-            <path id="wd_thism"></path>
-        </g>
-
-        <!-- Year graph width 200, height 200 -->
-        <g id="year_yaxis"></g>
-        <g id="year_xaxis"></g>
-        <g id="year_graph">
-            <path id="y_yearavg"></path>
-            <path id="y_thisy"></path>
-        </g>
-    </svg>
-    <br>
-    Year:<input id="year" type="text" value="2019">, Month:<input id="month" type="text" value="6"><br>
-    Data to plot:<select id="datatoplot"></select><br>
-    <button onclick="Plot()">Generate</button>
+    <table>
+        <tr>
+            <th id="title_cur">Current</th>
+            <th id="title_save">Saved</th>
+        </tr>
+        <tr>
+            <td>
+                <svg class="graph" width="800" height="600">
+                    <!-- Main graph (Month) width 800, height 300 -->
+                    <g id="month_ygrid"></g>
+                    <g id="month_yaxis"></g>
+                    <g id="month_xaxis"></g>
+                    <g id="month_graph">
+                        <path id="m_yearavg"></path>
+                        <path id="m_thism"></path>
+                    </g>
+                
+                    <!-- Weekday graph (1 week) width 200, height 200 -->
+                    <g id="weekday_yaxis"></g>
+                    <g id="weekday_xaxis"></g>
+                    <g id="weekday_graph">
+                        <path id="wd_yearavg"></path>
+                        <path id="wd_thism"></path>
+                    </g>
+                
+                    <!-- Year graph width 200, height 200 -->
+                    <g id="year_yaxis"></g>
+                    <g id="year_xaxis"></g>
+                    <g id="year_graph">
+                        <path id="y_yearavg"></path>
+                        <path id="y_thisy"></path>
+                    </g>
+                </svg>
+            </td>
+            <td>
+                <svg id="graph" width="800" height="600"></svg>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                日付<select id="datetoplot" onchange="Plot()"></select>、対象データ<select id="datatoplot" onchange="Plot()"></select>
+                <button onclick="CopyGraph()">保存 =></button>
+            </td>
+            <td>
+                <select name="show" id="show" onchange="Display()"><option value="">無し</option></select>
+                <button onclick="DeleteGraph()">削除</button>
+            </td>
+        </tr>
+    </table>
 
     <script src="script.js"></script>
 </body>
