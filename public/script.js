@@ -514,9 +514,9 @@ function DeleteGraph() {
 
     // Update select box
     shower.innerHTML = '<option value="">無し</option>';
-    for (let i = 0; i < SavedData.data.length; i++) {
-        shower.innerHTML += '<option value="' + i + '">' + SavedData.data[i].title + '</option>';
-    }
+    SavedData.data.forEach((d, i) => {
+        shower.innerHTML += '<option value="' + i + '">' + d.title + '</option>';
+    });
 
     // Save data in browser
     localStorage.setItem('GraphData', JSON.stringify(SavedData));
