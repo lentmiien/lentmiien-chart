@@ -4,7 +4,8 @@
   "description": "SVG chart",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.6-alpha.6"
   },
   "devDependencies": {},
   "scripts": {
