@@ -379,6 +379,7 @@ function Plot() {
   c.attr('cx', (d, i) => {
     return x(i + 1);
   });
+  c.insert('svg:title', ':first-child').text(d => d.data.total[column]);
   let c_enter = c.enter().append('circle');
   c_enter.style('fill', (d, i) => {
     if (d.data.total['4'] > 0) {
@@ -394,6 +395,7 @@ function Plot() {
   c_enter.attr('cx', (d, i) => {
     return x(i + 1);
   });
+  c_enter.insert('svg:title', ':first-child').text(d => d.data.total[column]);
   c.exit().remove();
 
   /*******************************
@@ -463,6 +465,7 @@ function Plot() {
   c2.attr('cx', (d, i) => {
     return x(i + 1);
   });
+  c2.insert('svg:title', ':first-child').text(d => d.days[column] > 0 ? d.total[column] / d.days[column] : 0);
   let c2_enter = c2.enter().append('circle');
   c2_enter.style('fill', 'green');
   c2_enter.attr('r', 5);
@@ -472,6 +475,7 @@ function Plot() {
   c2_enter.attr('cx', (d, i) => {
     return x(i + 1);
   });
+  c2_enter.insert('svg:title', ':first-child').text(d => d.days[column] > 0 ? d.total[column] / d.days[column] : 0);
   c2.exit().remove();
 
   /*******************************
@@ -541,6 +545,7 @@ function Plot() {
   c3.attr('cx', (d, i) => {
     return x(i + 1);
   });
+  c3.insert('svg:title', ':first-child').text(d => d.data.days[column] > 0 ? d.data.total[column] / d.data.days[column] : 0);
   let c3_enter = c3.enter().append('circle');
   c3_enter.style('fill', 'green');
   c3_enter.attr('r', 5);
@@ -550,6 +555,7 @@ function Plot() {
   c3_enter.attr('cx', (d, i) => {
     return x(i + 1);
   });
+  c3_enter.insert('svg:title', ':first-child').text(d => d.data.days[column] > 0 ? d.data.total[column] / d.data.days[column] : 0);
   c3.exit().remove();
 
   // Update title

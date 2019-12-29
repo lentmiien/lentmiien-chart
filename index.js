@@ -2,7 +2,7 @@
 const express = require('express');
 const fileUpload = require('express-fileupload');
 const app = express();
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`Listen to port ${PORT}`));
 app.use(express.static('public'));
